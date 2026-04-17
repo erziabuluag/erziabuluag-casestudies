@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI in Marketing — Case Studies on Practical Claude Deployments</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f1e8;
+    --bg-2: #ebe2d1;
+    --surface: #ffffff;
+    --ink: #120f0c;
+    --ink-soft: #3d3733;
+    --muted: #7a726c;
+    --accent: #c96442;
+    --accent-dark: #a04d30;
+    --accent-light: #e88669;
+    --accent-soft: #f6ebe3;
+    --cream: #f2ece2;
+    --border: #dfd6c6;
+    --success: #2e7d5b;
+    --dark: #0f0c0a;
+    --dark-2: #1a1512;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  ul, ol { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+
+  .serif { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.02em; }
+
+  /* ============ NAV ============ */
+  nav.top {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(246, 241, 232, 0.9);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap {
+    max-width: 1280px; margin: 0 auto;
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .brand {
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  nav .brand::before {
+    content: ''; width: 10px; height: 10px; background: var(--accent);
+    border-radius: 3px; transform: rotate(45deg); display: inline-block;
+  }
+  nav ul { display: flex; gap: 24px; list-style: none; font-size: 13px; font-weight: 500; }
+  nav ul a { color: var(--ink-soft); transition: color 0.15s; }
+  nav ul a:hover { color: var(--accent); }
+  nav .cta {
+    background: var(--dark); color: #fff;
+    padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative; overflow: hidden;
+    padding: 40px 28px 0;
+    background: var(--bg);
+  }
+  .hero-grid {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: 1.15fr 1fr;
+    gap: 48px; align-items: stretch;
+  }
+  .hero-text { padding: 40px 0 60px; position: relative; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .hero-badge::before {
+    content: ''; width: 8px; height: 8px; background: var(--success);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: clamp(44px, 6.5vw, 88px); line-height: 0.98;
+    letter-spacing: -0.03em; margin-bottom: 24px;
+  }
+  .hero h1 em {
+    font-style: italic; color: var(--accent);
+    font-weight: 500;
+  }
+  .hero h1 .underline {
+    background: linear-gradient(180deg, transparent 60%, var(--accent-soft) 60%);
+    padding: 0 4px;
+  }
+  .hero-lead {
+    font-size: 19px; color: var(--ink-soft);
+    max-width: 520px; line-height: 1.5; margin-bottom: 32px;
+  }
+  .hero-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    padding: 20px 0; border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    max-width: 520px;
+  }
+  .hero-meta .item {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .hero-meta .num {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 28px; color: var(--accent);
+    line-height: 1;
+  }
+  .hero-meta .lbl {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); font-weight: 600;
+  }
+  .hero-img {
+    position: relative; border-radius: 24px;
+    overflow: hidden; min-height: 520px;
+    background: var(--dark);
+  }
+  .hero-img img {
+    width: 100%; height: 100%; object-fit: cover;
+    position: absolute; inset: 0;
+  }
+  .hero-img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(15,12,10,0.65) 100%);
+  }
+  .hero-img-tag {
+    position: absolute; top: 24px; left: 24px;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #fff; padding: 10px 16px; border-radius: 10px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .hero-img-caption {
+    position: absolute; bottom: 24px; left: 24px; right: 24px;
+    color: #fff;
+  }
+  .hero-img-caption h4 {
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: 22px; margin-bottom: 6px;
+  }
+  .hero-img-caption p { font-size: 14px; color: rgba(255,255,255,0.75); }
+
+  /* MARQUEE */
+  .marquee {
+    background: var(--dark); color: #fff;
+    overflow: hidden; white-space: nowrap;
+    padding: 16px 0; border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .marquee-track {
+    display: inline-block;
+    animation: scroll 30s linear infinite;
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 24px; letter-spacing: -0.01em;
+  }
+  .marquee-track span { display: inline-block; margin: 0 32px; }
+  .marquee-track span.dot { color: var(--accent); margin: 0 20px; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ============ CASE STUDY ============ */
+  .case {
+    padding: 80px 28px;
+    position: relative;
+  }
+  .case.alt { background: var(--bg-2); }
+  .case-container { max-width: 1280px; margin: 0 auto; }
+
+  .case-head {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 40px; align-items: end;
+    margin-bottom: 40px;
+  }
+  .case-head-left .case-num {
+    font-family: 'Fraunces', serif; font-weight: 800;
+    font-size: clamp(120px, 16vw, 200px); line-height: 0.85;
+    letter-spacing: -0.05em;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .case-head-left .case-num span {
+    -webkit-text-stroke: 2px var(--accent);
+    color: transparent;
+  }
+  .case-head-left .case-eyebrow {
+    font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .case-head h2 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: clamp(32px, 4vw, 52px); line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .case-head h2 em { font-style: italic; color: var(--accent); }
+  .case-stack {
+    margin-top: 20px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .case-stack span {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500; color: var(--ink-soft);
+  }
+
+  /* TABS */
+  .tabs-bar {
+    display: flex; gap: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 6px; margin-bottom: 32px;
+    width: fit-content;
+  }
+  .tab-btn {
+    background: none; border: none; font-family: inherit;
+    padding: 10px 22px; font-size: 13px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+    border-radius: 10px; transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { background: var(--dark); color: #fff; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fade 0.3s ease; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* BENTO GRID */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .bento > * {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 26px;
+    position: relative; overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .bento > *:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -24px rgba(20,17,15,0.18);
+  }
+  .b-obj { grid-column: span 5; }
+  .b-img { grid-column: span 7; padding: 0; border: none; min-height: 280px; }
+  .b-img img { width: 100%; height: 100%; object-fit: cover; }
+  .b-stat { grid-column: span 3; text-align: left; padding: 24px 22px; }
+  .b-stat .v {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 46px; line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .b-stat .v.up { color: var(--success); }
+  .b-stat .v.down { color: var(--accent); }
+  .b-stat .l {
+    font-size: 12px; color: var(--muted);
+    margin-top: 6px; font-weight: 500; line-height: 1.4;
+  }
+
+  .b-obj h3 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 24px; line-height: 1.15;
+    margin-bottom: 12px; letter-spacing: -0.01em;
+  }
+  .b-obj p { color: var(--ink-soft); font-size: 15px; line-height: 1.55; margin-bottom: 10px; }
+  .b-obj ul { font-size: 14px; color: var(--ink-soft); }
+
+  /* PROCESS SECTION */
+  .process-grid {
+    display: grid; grid-template-columns: repeat(12, 1fr);
+    gap: 16px; margin-bottom: 32px;
+  }
+  .p-step {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px 26px;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .p-step.full { grid-column: span 12; }
+  .p-step.half { grid-column: span 6; }
+  .p-step.third { grid-column: span 4; }
+  .p-step.feature {
+    grid-column: span 6;
+    background: var(--dark); color: #fff;
+    border-color: var(--dark);
+  }
+  .p-step.feature h4, .p-step.feature p { color: #fff; }
+  .p-step.feature p { color: rgba(255,255,255,0.75); }
+  .p-step.image {
+    grid-column: span 6; padding: 0; overflow: hidden;
+    min-height: 320px;
+  }
+  .p-step.image img { width: 100%; height: 100%; object-fit: cover; }
+  .p-step-num {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 14px; color: var(--accent);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .p-step-num::before {
+    content: ''; width: 20px; height: 1px; background: var(--accent);
+  }
+  .p-step.feature .p-step-num { color: var(--accent-light); }
+  .p-step.feature .p-step-num::before { background: var(--accent-light); }
+  .p-step h4 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 22px; line-height: 1.2; margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .p-step p { color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; }
+  .p-step ul { margin-top: 8px; font-size: 14px; color: var(--ink-soft); }
+  .p-step blockquote {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 17px; margin: 10px 0 0;
+    padding: 12px 16px; border-left: 3px solid var(--accent);
+    color: var(--ink); background: var(--cream);
+    border-radius: 0 10px 10px 0;
+  }
+  .p-step.feature blockquote {
+    color: #fff; background: rgba(255,255,255,0.06);
+    border-left-color: var(--accent-light);
+  }
+
+  /* PULL QUOTE */
+  .pullquote {
+    padding: 60px 28px;
+    background: var(--dark); color: #fff;
+    margin: 0; position: relative; overflow: hidden;
+  }
+  .pullquote::before {
+    content: '"';
+    position: absolute; top: -60px; left: 28px;
+    font-family: 'Fraunces', serif; font-size: 320px;
+    color: var(--accent); opacity: 0.18; line-height: 1;
+  }
+  .pullquote .wrap { max-width: 1000px; margin: 0 auto; position: relative; }
+  .pullquote p {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(26px, 3.4vw, 42px); line-height: 1.2;
+    letter-spacing: -0.015em; color: #fff;
+  }
+  .pullquote p em { color: var(--accent-light); font-style: italic; }
+  .pullquote .author {
+    margin-top: 20px; font-size: 13px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(255,255,255,0.55);
+    font-weight: 500;
+  }
+
+  /* RESULTS BAND */
+  .results-band {
+    background: var(--dark); color: #fff;
+    border-radius: 24px; padding: 36px 40px;
+    margin: 30px 0;
+  }
+  .results-band .head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+  }
+  .results-band h3 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 28px; letter-spacing: -0.015em;
+  }
+  .results-band .sub {
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .results-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .rg-item {
+    padding: 20px 0 0;
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .rg-v {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 48px; line-height: 1; letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .rg-v.up { color: #7be3b3; }
+  .rg-v.down { color: var(--accent-light); }
+  .rg-l { font-size: 13px; color: rgba(255,255,255,0.65); font-weight: 500; }
+
+  /* INSIGHT */
+  .insight {
+    background: var(--accent-soft); border-radius: 18px;
+    padding: 28px 32px; margin: 20px 0;
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 20px; align-items: center;
+  }
+  .insight .badge {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .insight h4 {
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: 14px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--accent-dark); margin-bottom: 6px;
+  }
+  .insight p { font-size: 16px; line-height: 1.55; color: var(--ink); }
+  .insight p strong { color: var(--accent-dark); }
+
+  .net-effect {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+    color: #fff; border-radius: 18px;
+    padding: 28px 32px; margin: 20px 0 0;
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 20px; align-items: center;
+  }
+  .net-effect .badge {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .net-effect h4 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--accent-light); margin-bottom: 6px; font-weight: 600;
+  }
+  .net-effect p {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 22px; line-height: 1.3; color: #fff;
+    letter-spacing: -0.01em;
+  }
+
+  /* SECTION HEAD */
+  .section-head {
+    margin-bottom: 40px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 40px; align-items: end;
+  }
+  .section-head .label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: clamp(36px, 4.5vw, 60px); line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  .section-head h2 em { font-style: italic; color: var(--accent); }
+  .section-head p { color: var(--ink-soft); font-size: 17px; line-height: 1.55; }
+
+  /* TAKEAWAYS */
+  .takeaways {
+    padding: 90px 28px;
+    background: var(--dark); color: #fff;
+  }
+  .takeaways .section-head h2 { color: #fff; }
+  .takeaways .section-head p { color: rgba(255,255,255,0.7); }
+  .takeaways .section-head .label { color: var(--accent-light); }
+  .takeaways-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; max-width: 1280px; margin: 0 auto;
+  }
+  .t-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 36px 32px;
+    transition: all 0.3s;
+  }
+  .t-card:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+  .t-card .num {
+    font-family: 'Fraunces', serif; font-weight: 800;
+    font-size: 56px; line-height: 0.9;
+    color: var(--accent); margin-bottom: 20px;
+    letter-spacing: -0.03em;
+  }
+  .t-card h4 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 22px; line-height: 1.2; color: #fff;
+    margin-bottom: 12px; letter-spacing: -0.01em;
+  }
+  .t-card p, .t-card ul { color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.55; }
+  .t-card ul { margin-top: 8px; }
+
+  /* WORKFLOW SECTION */
+  .workflows {
+    padding: 90px 28px;
+    background: var(--bg-2);
+  }
+  .wf-block {
+    display: grid; grid-template-columns: 1.2fr 0.8fr;
+    gap: 24px; align-items: stretch;
+    margin-bottom: 48px;
+  }
+  .wf-block.rev { grid-template-columns: 0.8fr 1.2fr; }
+  .wf-block.rev .wf-steps { order: 2; }
+  .wf-steps {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 32px 36px;
+  }
+  .wf-steps .wf-title {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 28px; letter-spacing: -0.015em;
+    margin-bottom: 4px;
+  }
+  .wf-steps .wf-sub {
+    font-size: 13px; color: var(--muted);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .wf-steps ol {
+    list-style: none; padding: 0;
+    counter-reset: wf;
+  }
+  .wf-steps li {
+    counter-increment: wf;
+    display: grid; grid-template-columns: 44px 1fr;
+    gap: 14px; padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  .wf-steps li:last-child { border-bottom: 1px solid var(--border); }
+  .wf-steps li::before {
+    content: '0' counter(wf);
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 16px; color: var(--accent);
+    display: flex; align-items: flex-start; padding-top: 2px;
+  }
+  .wf-steps li h4 {
+    font-size: 15px; font-weight: 700; margin-bottom: 2px;
+    font-family: 'Inter', sans-serif;
+  }
+  .wf-steps li p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  .wf-flow {
+    background: var(--dark); color: #fff;
+    border-radius: 24px; padding: 32px 28px;
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; gap: 4px;
+    position: relative; overflow: hidden;
+  }
+  .wf-flow::before {
+    content: ''; position: absolute;
+    inset: 0; opacity: 0.07;
+    background-image: radial-gradient(circle at 50% 50%, var(--accent) 0%, transparent 60%);
+  }
+  .wf-flow .flow-label {
+    font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(255,255,255,0.45);
+    margin-bottom: 16px; font-weight: 600;
+    position: relative;
+  }
+  .fs {
+    width: 100%; max-width: 280px;
+    text-align: center; padding: 12px 18px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600; color: #fff;
+    position: relative;
+  }
+  .fs.accent {
+    background: var(--accent); border-color: var(--accent);
+    box-shadow: 0 10px 24px -10px rgba(201,100,66,0.6);
+  }
+  .fa {
+    color: rgba(255,255,255,0.4); font-size: 14px; line-height: 1;
+    margin: 2px 0;
+  }
+
+  /* CTA */
+  .cta-section {
+    background: var(--accent);
+    padding: 90px 28px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 20% 30%, var(--accent-light) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 70%, var(--accent-dark) 0%, transparent 50%);
+    opacity: 0.5;
+  }
+  .cta-section .wrap { max-width: 800px; margin: 0 auto; position: relative; }
+  .cta-section h2 {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: clamp(36px, 5vw, 56px); line-height: 1.05;
+    letter-spacing: -0.025em; color: #fff;
+    margin-bottom: 20px;
+  }
+  .cta-section h2 em { font-style: italic; color: var(--dark); }
+  .cta-section p { font-size: 18px; color: rgba(255,255,255,0.85); margin-bottom: 32px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark); color: rgba(255,255,255,0.65);
+    padding: 48px 28px 40px;
+  }
+  footer .wrap {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+  footer .fb {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    color: #fff; font-size: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  footer .fb::before {
+    content: ''; width: 10px; height: 10px; background: var(--accent);
+    border-radius: 3px; transform: rotate(45deg);
+  }
+  footer p { font-size: 13px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 960px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-img { min-height: 360px; }
+    .case-head { grid-template-columns: 1fr; gap: 20px; }
+    .case-head-left .case-num { font-size: 120px; }
+    .section-head { grid-template-columns: 1fr; gap: 20px; }
+    .bento > * { grid-column: span 12 !important; }
+    .process-grid > * { grid-column: span 12 !important; }
+    .results-grid { grid-template-columns: repeat(2, 1fr); }
+    .takeaways-grid { grid-template-columns: 1fr; }
+    .wf-block, .wf-block.rev { grid-template-columns: 1fr; }
+    .wf-block.rev .wf-steps { order: 0; }
+  }
+  @media (max-width: 600px) {
+    nav ul { display: none; }
+    .hero { padding: 24px 20px 0; }
+    .case { padding: 60px 20px; }
+    .takeaways, .workflows, .cta-section { padding: 70px 20px; }
+    .results-grid { grid-template-columns: 1fr; }
+    .results-band { padding: 28px 24px; }
+    .rg-v { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="wrap">
+    <div class="brand">Claude Studies</div>
+    <ul>
+      <li><a href="#case-1">Thought Leadership</a></li>
+      <li><a href="#case-2">Affiliate App</a></li>
+      <li><a href="#takeaways">Takeaways</a></li>
+      <li><a href="#workflows">Workflows</a></li>
+    </ul>
+    <a href="#cta" class="cta">Build with Claude →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-text">
+      <div class="hero-badge">Two Case Studies · Live Results</div>
+      <h1>AI that <em>actually moves</em><br>
+      <span class="underline">pipeline</span> &amp; <span class="underline">revenue</span>.</h1>
+      <p class="hero-lead">Two practical deployments of Claude — one that turned a quiet LinkedIn feed into qualified HubSpot leads, and one that turned scattered Amazon affiliates into a measurable growth channel.</p>
+      <div class="hero-meta">
+        <div class="item"><div class="num">+18%</div><div class="lbl">Conversion lift</div></div>
+        <div class="item"><div class="num">−11%</div><div class="lbl">Churn reduction</div></div>
+        <div class="item"><div class="num">+21%</div><div class="lbl">Engagement</div></div>
+        <div class="item"><div class="num">1,200+</div><div class="lbl">Creators helped</div></div>
+      </div>
+    </div>
+    <div class="hero-img">
+      <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&q=80&auto=format&fit=crop" alt="AI abstract visualization">
+      <div class="hero-img-overlay"></div>
+      <div class="hero-img-tag">● Claude · Live Deployment</div>
+      <div class="hero-img-caption">
+        <h4>Built for outcomes, not outputs.</h4>
+        <p>Structured prompts · Feedback loops · Human-in-the-loop</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span>LinkedIn Thought Leadership</span><span class="dot">✦</span>
+      <span>HubSpot Lead Validation</span><span class="dot">✦</span>
+      <span>Affiliate Optimization</span><span class="dot">✦</span>
+      <span>Gamified Creator Growth</span><span class="dot">✦</span>
+      <span>Feedback-Loop Learning</span><span class="dot">✦</span>
+      <span>LinkedIn Thought Leadership</span><span class="dot">✦</span>
+      <span>HubSpot Lead Validation</span><span class="dot">✦</span>
+      <span>Affiliate Optimization</span><span class="dot">✦</span>
+      <span>Gamified Creator Growth</span><span class="dot">✦</span>
+      <span>Feedback-Loop Learning</span><span class="dot">✦</span>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDY 1 -->
+<section class="case" id="case-1">
+  <div class="case-container">
+    <div class="case-head">
+      <div class="case-head-left">
+        <div class="case-num"><span>0</span>1</div>
+        <div class="case-eyebrow">Case Study 01 · B2B SaaS</div>
+      </div>
+      <div>
+        <h2>AI-driven <em>thought leadership</em> with Claude + LinkedIn + HubSpot.</h2>
+        <div class="case-stack">
+          <span>Claude Sonnet 4.6</span>
+          <span>LinkedIn API</span>
+          <span>HubSpot Marketing Hub</span>
+          <span>4-month pilot</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs-bar" role="tablist">
+      <button class="tab-btn active" data-tab="cs1-build">Build &amp; Process</button>
+      <button class="tab-btn" data-tab="cs1-roi">Business &amp; ROI</button>
+    </div>
+
+    <div class="tab-panel active" id="cs1-build">
+      <!-- BENTO: OBJECTIVE -->
+      <div class="bento">
+        <div class="b-obj">
+          <h3>The objective — fewer leads, better leads.</h3>
+          <p>Build a scalable thought leadership engine that attracts high-intent B2B leads, cuts unqualified pipeline volume, and strengthens positioning through consistent expertise-driven content.</p>
+          <ul>
+            <li>Higher-intent inbound leads</li>
+            <li>Less noise in the nurture track</li>
+            <li>Downstream conversion + retention gains</li>
+          </ul>
+        </div>
+        <div class="b-img">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&q=80&auto=format&fit=crop" alt="Marketing team strategy">
+        </div>
+        <div class="b-stat"><div class="v up">+18%</div><div class="l">Lead → opportunity conversion</div></div>
+        <div class="b-stat"><div class="v down">−11%</div><div class="l">Customer churn</div></div>
+        <div class="b-stat"><div class="v up">+22%</div><div class="l">MQL quality score</div></div>
+        <div class="b-stat"><div class="v up">+15%</div><div class="l">Qualified lead volume</div></div>
+      </div>
+
+      <!-- PROCESS -->
+      <div class="section-head" style="margin-top: 60px;">
+        <div>
+          <div class="label">How we built it</div>
+          <h2>A system, not a <em>prompt</em>.</h2>
+        </div>
+        <p>We treated Claude as an engine in the middle of a three-part pipeline — layered context, modular prompts, and a feedback loop that sharpened output over time.</p>
+      </div>
+
+      <div class="process-grid">
+        <div class="p-step third">
+          <div class="p-step-num">01 Context</div>
+          <h4>Persistent project inputs</h4>
+          <p>ICP, messaging pillars, brand tone, and historical winning content — reused across every prompt so Claude stayed on voice.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">02 Prompting</div>
+          <h4>Modular prompt chains</h4>
+          <p>Topics → score → outline → draft → critique. Five focused passes produced sharper posts than one monster prompt ever did.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">03 Voice</div>
+          <h4>Style transfer from real posts</h4>
+          <blockquote>"Rewrite this in the tone of a data-driven but conversational SaaS founder."</blockquote>
+        </div>
+
+        <div class="p-step feature">
+          <div class="p-step-num">04 Self-Critique Loop</div>
+          <h4>Draft → Critique → Rewrite</h4>
+          <p>Claude reviewed its own output against clarity and insight criteria before anything left the system. Fewer platitudes, stronger hooks, tighter CTAs.</p>
+          <blockquote>"Critique this for clarity and insight."</blockquote>
+        </div>
+        <div class="p-step image">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80&auto=format&fit=crop" alt="Analytics dashboard">
+        </div>
+
+        <div class="p-step half">
+          <div class="p-step-num">05 Distribution</div>
+          <h4>LinkedIn as the listening post</h4>
+          <p>Posts published via scheduling tools. Engagement triggered lead capture through LinkedIn forms and dedicated landing pages — routed straight into HubSpot.</p>
+        </div>
+        <div class="p-step half">
+          <div class="p-step-num">06 Validation</div>
+          <h4>HubSpot as the filter</h4>
+          <p>Claude supported lead-scoring refinement, behavioral email personalization, and segmentation. Strategy-content engagers got different nurture tracks than tactical-content readers.</p>
+        </div>
+
+        <div class="p-step full" style="background: var(--accent-soft); border-color: var(--accent-soft);">
+          <div class="p-step-num">07 Optimization Loop · Critical</div>
+          <h4 style="font-size: 26px;">HubSpot data → fed back into Claude.</h4>
+          <p>"Posts about ROI generated higher-quality leads — prioritize similar angles." Every two weeks, CRM signals reshaped the voice brief and the scoring rubric. The system got sharper without getting more expensive.</p>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="badge">💡</div>
+        <div>
+          <h4>Key Insight</h4>
+          <p><strong>Claude's biggest impact came from structured thinking</strong>, not just content generation. Every output aligned with a downstream business outcome.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="cs1-roi">
+      <div class="bento">
+        <div class="b-obj">
+          <h3>The problem every B2B team knows.</h3>
+          <p>Most B2B companies generate leads — but struggle with low-quality inbound, high churn from poor fit, and content that drives engagement without revenue. Claude wasn't brought in to write more posts. It was brought in to <strong>decide what to say and why</strong>.</p>
+          <ul>
+            <li>Content attracts the right audience</li>
+            <li>Leads are validated before sales engagement</li>
+            <li>Messaging improves from real performance data</li>
+          </ul>
+        </div>
+        <div class="b-img">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1400&q=80&auto=format&fit=crop" alt="Analytics dashboard">
+        </div>
+      </div>
+
+      <div class="process-grid">
+        <div class="p-step third">
+          <div class="p-step-num">ROI Driver 01</div>
+          <h4>Lead quality → conversion efficiency</h4>
+          <p>Content tailored to ICP pain points. HubSpot filters low-intent leads early. Sales spend time only on qualified opportunities.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">ROI Driver 02</div>
+          <h4>Less churn → higher LTV</h4>
+          <p>Messaging sets accurate expectations. Leads are pre-educated before the pipeline. Fewer mismatched customers.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">ROI Driver 03</div>
+          <h4>Compounding content</h4>
+          <p>Each campaign improves the next via feedback loops. Cost per acquisition trends downward over time.</p>
+        </div>
+      </div>
+
+      <div class="results-band">
+        <div class="head">
+          <h3>Results · 4-month period</h3>
+          <div class="sub">Verified via HubSpot</div>
+        </div>
+        <div class="results-grid">
+          <div class="rg-item"><div class="rg-v up">+18%</div><div class="rg-l">Lead-to-opportunity conversion</div></div>
+          <div class="rg-item"><div class="rg-v down">−11%</div><div class="rg-l">Churn reduction</div></div>
+          <div class="rg-item"><div class="rg-v up">+15%</div><div class="rg-l">Qualified lead volume</div></div>
+          <div class="rg-item"><div class="rg-v down">−9%</div><div class="rg-l">Sales cycle time</div></div>
+        </div>
+      </div>
+
+      <div class="net-effect">
+        <div class="badge">→</div>
+        <div>
+          <h4>Net Effect</h4>
+          <p>More revenue without increasing ad spend.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PULL QUOTE -->
+<section class="pullquote">
+  <div class="wrap">
+    <p>"We stopped asking Claude to <em>write</em> content and started asking it to <em>think</em> about content. That's when the pipeline numbers changed."</p>
+    <div class="author">— Head of Growth · Case Study 01</div>
+  </div>
+</section>
+
+<!-- CASE STUDY 2 -->
+<section class="case alt" id="case-2">
+  <div class="case-container">
+    <div class="case-head">
+      <div class="case-head-left">
+        <div class="case-num"><span>0</span>2</div>
+        <div class="case-eyebrow">Case Study 02 · Affiliate Network</div>
+      </div>
+      <div>
+        <h2>An AI <em>co-pilot</em> for 1,200+ Amazon affiliates.</h2>
+        <div class="case-stack">
+          <span>Claude Haiku 4.5</span>
+          <span>Claude Sonnet 4.6</span>
+          <span>Amazon Associates API</span>
+          <span>Internal Web App</span>
+          <span>Gamification Layer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs-bar" role="tablist">
+      <button class="tab-btn active" data-tab="cs2-build">Build &amp; Process</button>
+      <button class="tab-btn" data-tab="cs2-roi">Business &amp; ROI</button>
+    </div>
+
+    <div class="tab-panel active" id="cs2-build">
+      <div class="bento">
+        <div class="b-obj">
+          <h3>Turn analytics into <em>action</em>.</h3>
+          <p>Most affiliates have the data but don't know what to do with it. We built a mini app that told each affiliate — in plain English — what to fix today, and handed them the copy-paste-ready snippet to do it.</p>
+          <ul>
+            <li>Simple, actionable optimization insights</li>
+            <li>Three fixes per page, max — never a 40-point audit</li>
+            <li>Gamification that rewards real lifts</li>
+          </ul>
+        </div>
+        <div class="b-img">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80&auto=format&fit=crop" alt="Affiliate online shopping review">
+        </div>
+        <div class="b-stat"><div class="v up">+14%</div><div class="l">Avg. click-through rate</div></div>
+        <div class="b-stat"><div class="v up">+9%</div><div class="l">Conversion rate</div></div>
+        <div class="b-stat"><div class="v up">+21%</div><div class="l">Affiliate engagement</div></div>
+        <div class="b-stat"><div class="v" style="color:var(--accent)">~63%</div><div class="l">Recommendation completion</div></div>
+      </div>
+
+      <div class="section-head" style="margin-top: 60px;">
+        <div>
+          <div class="label">How we built it</div>
+          <h2>Claude as the <em>coach</em>, not the dashboard.</h2>
+        </div>
+        <p>Structured inputs. Constrained outputs. One green button per screen. The interface did less, so the affiliate could do more.</p>
+      </div>
+
+      <div class="process-grid">
+        <div class="p-step half">
+          <div class="p-step-num">01 Data Input</div>
+          <h4>Structured context, every time</h4>
+          <p>Page content, performance metrics (CTR, conversions, bounce rate), and content metadata — all handed to Claude in a consistent shape.</p>
+        </div>
+        <div class="p-step image">
+          <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&q=80&auto=format&fit=crop" alt="Creator working on phone">
+        </div>
+
+        <div class="p-step feature">
+          <div class="p-step-num">02 Prompting</div>
+          <h4>Constraints that shaped the output</h4>
+          <blockquote>"Identify the top 3 conversion blockers. Fix in simple language. Each must be actionable within 10 minutes."</blockquote>
+          <p style="margin-top: 12px;">Claude returned Problem → Fix → Expected Impact. Never vague. Never more than three.</p>
+        </div>
+        <div class="p-step half">
+          <div class="p-step-num">03 Simplification</div>
+          <h4>Plain English only</h4>
+          <p>No jargon. No "optimize your on-page CRO signals." Claude wrote like a smart friend who doesn't do this for a living.</p>
+        </div>
+
+        <div class="p-step third">
+          <div class="p-step-num">04 Model Selection</div>
+          <h4>Haiku + Sonnet</h4>
+          <p>Haiku for nightly recommendation volume. Sonnet for weekly long-form rewrites. Cost dropped; quality held.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">05 Interface</div>
+          <h4>One screen, three cards</h4>
+          <p>Action cards, progress checklists, and Before/After examples. Expandable "advanced" options tanked engagement in testing — so we cut them.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">06 Gamification</div>
+          <h4>Points that mean something</h4>
+          <p>Bonus points when a recommendation actually lifted conversion after 7 days. Monthly top-10 got a cash bonus + newsletter feature.</p>
+        </div>
+
+        <div class="p-step full" style="background: var(--accent-soft); border-color: var(--accent-soft);">
+          <div class="p-step-num">07 Continuous Learning</div>
+          <h4 style="font-size: 26px;">High-performing patterns reused. Low-impact recs removed.</h4>
+          <p>Implementation + 7-day lift data flowed back into the prompt context. Network-wide learning without network-wide meetings.</p>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="badge">🎯</div>
+        <div>
+          <h4>Key Insight</h4>
+          <p><strong>The lift came from making action easy</strong>, not from being clever. Claude's job was to be clear, specific, and short — in that order.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="cs2-roi">
+      <div class="bento">
+        <div class="b-obj">
+          <h3>Affiliates didn't need more tools. They needed a nudge.</h3>
+          <p>Underperforming pages stayed underperforming because fixing them felt overwhelming. Churn was high because affiliates stopped seeing effort pay off. The network burned support hours answering <em>"why isn't my site earning?"</em></p>
+          <ul>
+            <li>Clarity over complexity</li>
+            <li>Action over insight</li>
+            <li>Behavior over data</li>
+          </ul>
+        </div>
+        <div class="b-img">
+          <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1400&q=80&auto=format&fit=crop" alt="Amazon delivery boxes" onerror="this.src='https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80&auto=format&fit=crop'">
+        </div>
+      </div>
+
+      <div class="process-grid">
+        <div class="p-step third">
+          <div class="p-step-num">ROI Driver 01</div>
+          <h4>Faster optimization cycles</h4>
+          <p>Affiliates know exactly what to fix. Immediate improvements in performance.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">ROI Driver 02</div>
+          <h4>More revenue per creator</h4>
+          <p>Gamification drives consistent action. More optimized pages = more conversions across the network.</p>
+        </div>
+        <div class="p-step third">
+          <div class="p-step-num">ROI Driver 03</div>
+          <h4>Scalable performance</h4>
+          <p>One Claude-powered system supports 1,200+ affiliates simultaneously. No manual coaching.</p>
+        </div>
+      </div>
+
+      <div class="results-band">
+        <div class="head">
+          <h3>Results · 3-month period</h3>
+          <div class="sub">Verified via Amazon Associates</div>
+        </div>
+        <div class="results-grid">
+          <div class="rg-item"><div class="rg-v up">+14%</div><div class="rg-l">CTR increase</div></div>
+          <div class="rg-item"><div class="rg-v up">+9%</div><div class="rg-l">Conversion rate</div></div>
+          <div class="rg-item"><div class="rg-v up">+21%</div><div class="rg-l">User engagement</div></div>
+          <div class="rg-item"><div class="rg-v" style="color:var(--accent-light)">63%</div><div class="rg-l">Recommendation adoption</div></div>
+        </div>
+      </div>
+
+      <div class="net-effect">
+        <div class="badge">→</div>
+        <div>
+          <h4>Net Effect</h4>
+          <p>Revenue lift without increasing traffic acquisition costs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAKEAWAYS -->
+<section class="takeaways" id="takeaways">
+  <div style="max-width: 1280px; margin: 0 auto;">
+    <div class="section-head">
+      <div>
+        <div class="label">Final Takeaways</div>
+        <h2>What both projects <em>have in common</em>.</h2>
+      </div>
+      <p>Neither case study was about replacing humans — it was about removing the boring parts of the job. The pattern that worked in both, was the same.</p>
+    </div>
+    <div class="takeaways-grid">
+      <div class="t-card">
+        <div class="num">01</div>
+        <h4>Structured &gt; ad hoc</h4>
+        <p>Projects that used prompt frameworks, iterative loops, and context layering performed significantly better than one-off prompting.</p>
+      </div>
+      <div class="t-card">
+        <div class="num">02</div>
+        <h4>Features &gt; model size</h4>
+        <p>The features that drove results:</p>
+        <ul>
+          <li>Long-context memory</li>
+          <li>Iterative refinement</li>
+          <li>Role-based prompting</li>
+          <li>Constraint-based outputs</li>
+        </ul>
+      </div>
+      <div class="t-card">
+        <div class="num">03</div>
+        <h4>Feedback &gt; fresh prompts</h4>
+        <p>Both case studies improved performance by feeding real-world results back into prompts and continuously refining outputs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOWS -->
+<section class="workflows" id="workflows">
+  <div style="max-width: 1280px; margin: 0 auto;">
+    <div class="section-head">
+      <div>
+        <div class="label">Workflow Imagery Guide</div>
+        <h2>How each system <em>flows</em>.</h2>
+      </div>
+      <p>Seven steps per workflow. Two closed loops. Both end by feeding results back into Claude.</p>
+    </div>
+
+    <div class="wf-block">
+      <div class="wf-steps">
+        <div class="wf-title">Workflow 01 — Thought Leadership Engine</div>
+        <div class="wf-sub">Claude + LinkedIn + HubSpot</div>
+        <ol>
+          <li><div><h4>Strategic Input Setup</h4><p>Define ICP, messaging, and goals. Feed into Claude as structured context.</p></div></li>
+          <li><div><h4>Content Ideation</h4><p>Generate topics → score → select. Align with business goals, not just engagement.</p></div></li>
+          <li><div><h4>Content Creation</h4><p>Draft → critique → refine loop. Output: LinkedIn posts + email content.</p></div></li>
+          <li><div><h4>Distribution (LinkedIn)</h4><p>Publish via personal or brand accounts. Drive engagement and inbound interest.</p></div></li>
+          <li><div><h4>Lead Capture (HubSpot)</h4><p>Capture via forms / CTAs. Score and segment based on behavior.</p></div></li>
+          <li><div><h4>Nurture &amp; Conversion</h4><p>Personalized email sequences. Sales engagement only for qualified leads.</p></div></li>
+          <li><div><h4>Feedback Loop</h4><p>HubSpot data → back into Claude. Improve messaging, targeting, content strategy.</p></div></li>
+        </ol>
+      </div>
+      <div class="wf-flow">
+        <div class="flow-label">Simple Visual Flow</div>
+        <div class="fs accent">Claude (Strategy + Content)</div>
+        <div class="fa">↓</div>
+        <div class="fs">LinkedIn</div>
+        <div class="fa">↓</div>
+        <div class="fs">HubSpot</div>
+        <div class="fa">↓</div>
+        <div class="fs">Email Nurture</div>
+        <div class="fa">↓</div>
+        <div class="fs">Performance Data</div>
+        <div class="fa">↓</div>
+        <div class="fs accent">Back to Claude</div>
+      </div>
+    </div>
+
+    <div class="wf-block rev">
+      <div class="wf-flow">
+        <div class="flow-label">Simple Visual Flow</div>
+        <div class="fs">Affiliate Data</div>
+        <div class="fa">↓</div>
+        <div class="fs accent">Claude (Analysis)</div>
+        <div class="fa">↓</div>
+        <div class="fs">Recommendations</div>
+        <div class="fa">↓</div>
+        <div class="fs">User Implementation</div>
+        <div class="fa">↓</div>
+        <div class="fs">Gamification + Tracking</div>
+        <div class="fa">↓</div>
+        <div class="fs">Performance Data</div>
+        <div class="fa">↓</div>
+        <div class="fs accent">Back to Claude</div>
+      </div>
+      <div class="wf-steps">
+        <div class="wf-title">Workflow 02 — Affiliate Mini App</div>
+        <div class="wf-sub">Claude + Amazon Associates + Gamification</div>
+        <ol>
+          <li><div><h4>Data Input</h4><p>Affiliate content + performance metrics.</p></div></li>
+          <li><div><h4>Analysis (Claude)</h4><p>Identify top conversion blockers. Detect patterns across content.</p></div></li>
+          <li><div><h4>Recommendation Generation</h4><p>Output: Problem → Fix → Expected impact.</p></div></li>
+          <li><div><h4>UI Delivery</h4><p>Action cards, simple instructions, progress tracking.</p></div></li>
+          <li><div><h4>Gamification Layer</h4><p>Points, levels, challenges. Incentives for implementation.</p></div></li>
+          <li><div><h4>Behavior Tracking</h4><p>Monitor which actions are completed, which improvements drive results.</p></div></li>
+          <li><div><h4>Feedback Loop</h4><p>High-performing patterns reused. Low-performing removed / refined.</p></div></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="wrap">
+    <h2>Two case studies. <em>One pattern.</em></h2>
+    <p>Structured prompts. Feedback loops. Humans in the loop. That's how Claude went from a content tool to a growth engine — twice.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="fb">Claude Studies</div>
+    <p>AI in Marketing — Case Studies on Practical Claude Deployments · © 2026</p>
+  </div>
+</footer>
+
+<script>
+  // Tabs scoped per case section
+  document.querySelectorAll('.case').forEach(section => {
+    const btns = section.querySelectorAll('.tab-btn');
+    const panels = section.querySelectorAll('.tab-panel');
+    if (!btns.length) return;
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const target = section.querySelector('#' + btn.dataset.tab);
+        if (target) target.classList.add('active');
+      });
+    });
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('nav a[href^="#"], .cta[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        e.preventDefault();
+        window.scrollTo({ top: el.offsetTop - 70, behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+</body>
+</html>
